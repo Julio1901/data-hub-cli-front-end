@@ -1,10 +1,17 @@
 import { Injectable } from "@nestjs/common";
 import axios from "axios";
+import { IResponseData } from "./response-data.interface";
+
+
+
+
+
+
 
 @Injectable()
 export class ApiService{
 
-    async getData() : Promise<string> {
+    async getData() : Promise<IResponseData> {
 
     //     const query = `
     //     query {
@@ -28,12 +35,18 @@ export class ApiService{
       }
     `;
         try{
-            const response = await axios.post('http://localhost:3000/graphql', {
+            const response = await axios.post<IResponseData>('http://localhost:3000/graphql', {
                 query})
+
+
+            console.log(response.data)
+
+
+
+            // return response.data
             return response.data
         } catch(error) {
             throw error
-            return "API Error"
         }
     
 
