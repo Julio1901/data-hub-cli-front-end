@@ -37,13 +37,6 @@ export class ApiService{
         try{
             const response = await axios.post<IResponseData>('http://localhost:3000/graphql', {
                 query})
-
-
-            console.log(response.data)
-
-
-
-            // return response.data
             return response.data
         } catch(error) {
             throw error
