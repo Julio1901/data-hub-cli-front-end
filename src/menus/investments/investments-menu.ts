@@ -12,6 +12,7 @@ export class InvestmentsMenu {
         const apiResponse = await service.getData()
         const investmentList =  apiResponse.data.getInvestments.map( (i) => {
             return new InvestmentDTO(
+                i.id,
                 i.type,
                 i.name,
                 i.totalInvested,
@@ -37,6 +38,7 @@ export class InvestmentsMenu {
 
         investmentList.forEach( (i: InvestmentDTO) => {
             console.log( `
+            ID: ${i.id}
             Tipo do investimento: ${i.type}
             Nome do investimento:   ${i.name}
             Total investido:  ${i.totalInvested}

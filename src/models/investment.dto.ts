@@ -1,5 +1,6 @@
 import { BankDTO } from "./bank.dto"
 export  class InvestmentDTO {
+    id: number
     type: string
     // ex: CDB Nubank, selic etc.,
     name: string
@@ -9,7 +10,8 @@ export  class InvestmentDTO {
     bank: BankDTO
 
 
-    constructor(type: string, name: string, totalInvested: number, applicationDate: string, bank: BankDTO ) {
+    constructor(id: number, type: string, name: string, totalInvested: number, applicationDate: string, bank: BankDTO ) {
+        this.id = id
         this.type = type
         this.name = name
         this.totalInvested = totalInvested

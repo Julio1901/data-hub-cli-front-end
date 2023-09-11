@@ -23,6 +23,7 @@ export class ApiService{
       const query = `
       query {
         getInvestments {
+          id
           type
           name
           applicationDate
