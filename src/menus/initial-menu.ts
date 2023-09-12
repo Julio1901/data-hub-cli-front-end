@@ -2,6 +2,7 @@
 import { Display } from 'src/cli.utils/display';
 import * as readline from 'readline';
 import { InvestmentsMenu } from './investments/investments-menu';
+import { InteractWithUser } from 'src/cli.utils/interact-with-user';
 
    
 const readLine = readline.createInterface({
@@ -19,13 +20,22 @@ export class InitialMenu {
     }
 
         
-    private requestInitialOption(){
-        readLine.question(`
-Escolha a opção desejada: \n
-1- Investimentos
-2- Alterar gastos fixos
-3- Verificar saldo total\n
-Entre com a opção desejada: `, (answer) => {
+    private async requestInitialOption(){
+
+        const interactWithUserObj = new InteractWithUser()
+
+        let message = `
+        Escolha a opção desejada: \n
+        1- Investimentos
+        2- Alterar gastos fixos
+        3- Verificar saldo total\n
+        Entre com a opção desejada: `
+
+        // const answer = await interactWithUserObj.interactWithUser(message)
+
+        // this.handleWithInitialOption(answer)
+
+        readLine.question(message, (answer) => {
             this.handleWithInitialOption(answer)
         })
     }

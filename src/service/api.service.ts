@@ -13,12 +13,6 @@ export class ApiService{
 
     async getData() : Promise<IResponseData> {
 
-    //     const query = `
-    //     query {
-    //       user
-    //     }
-    //   `;
-    
       //IMPORTANTE: O NOME DA CONST TEM QUE SER QUERY SE NÃO DÁ ERRO
       const query = `
       query {
@@ -42,7 +36,27 @@ export class ApiService{
         } catch(error) {
             throw error
         }
-    
+    }
+
+
+    async updateInvestment(investmentId: number, newValue: number) {
+
+      const mutation = `
+      mutation {
+        updateInvestment(data: {
+            id: ${investmentId},
+            newValue: ${newValue}
+          })
+      }
+
+      `
+
+      try {
+        const response = await axios.post('http://localhost:3000/graphql', {query: mutation})
+        return response.data
+      }catch(error) {
+        throw error
+    }
 
     }
 
