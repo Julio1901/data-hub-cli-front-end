@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import axios from "axios";
 import { IResponseData } from "./response-data.interface";
+import { CreateNewInvestmentDTO } from "./create-new-investment.dto";
 
 
 
@@ -12,7 +13,6 @@ import { IResponseData } from "./response-data.interface";
 export class ApiService{
 
     async getData() : Promise<IResponseData> {
-
       //IMPORTANTE: O NOME DA CONST TEM QUE SER QUERY SE NÃO DÁ ERRO
       const query = `
       query {
@@ -59,5 +59,27 @@ export class ApiService{
     }
 
     }
+
+ async createNewInvestment(investment: CreateNewInvestmentDTO){
+  const mutation = `
+    mutation {
+      createNewInvestment(data: {
+        type: "${investment.type}",
+        name: "${investment.name}",
+        totalInvested: ${investment.totalInvested},
+        applicationDate: "${investment.applicationDate}",
+        bankId: ${investment.bankId}
+      })
+    }
+  `
+
+  try{
+    //TODO Tratar esse response e verificar se foi em sucedido
+     const response = await axios.post('http://localhost:3000/graphql', {query: mutation})
+  }catch(error){
+    throw error
+  }
+ }
+
 
 }

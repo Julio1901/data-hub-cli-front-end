@@ -45,7 +45,7 @@ export class InitialMenu {
 
         if (userInput === '1') {
             const investmentsMenuObject = new InvestmentsMenu()
-            await investmentsMenuObject.handleWithResponse()
+            await investmentsMenuObject.displayInvestmentList()
 
         }else{
             //Refatorar e fazer função que cria looping até o usuário escolher algo válido
