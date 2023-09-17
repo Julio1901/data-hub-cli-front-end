@@ -5,12 +5,15 @@ import { ApiService } from "src/service/api.service"
 import * as readline from 'readline';
 import { InteractWithUser } from "src/cli.utils/interact-with-user";
 import { CreateNewInvestmentDTO } from "src/service/create-new-investment.dto";
+import { UpdateInvestmentDTO } from "src/service/update-investment.dto";
 
 export class InvestmentsMenu {
 
     async displayInvestmentList() {
         const service = new ApiService()
         const apiResponse = await service.getData()
+        const displayTitle = new Display()
+        console.log(displayTitle.getInvestmentsMenuTitle())
         const investmentList =  apiResponse.data.getInvestments.map( (i) => {
        
             return new InvestmentDTO(
@@ -24,7 +27,6 @@ export class InvestmentsMenu {
 
        
         })
-     
         this.formatInvestmentListToDisplay(investmentList)
     }
 
@@ -33,11 +35,7 @@ export class InvestmentsMenu {
 
 
     private formatInvestmentListToDisplay(investmentList: InvestmentDTO[]) {
-        const displayTitle = new Display()
-        console.log(displayTitle.getInvestmentsMenuTitle())
         const stringFormatter = new StringFormatter()
-
-
         let totalMoney = 0
 
         investmentList.forEach( (i: InvestmentDTO) => {
@@ -45,7 +43,7 @@ export class InvestmentsMenu {
             ID: ${i.id}
             Tipo do investimento: ${i.type}
             Nome do investimento:   ${i.name}
-            Total investido:  ${i.totalInvested}
+            Total investido:  ${ stringFormatter.formatMoneyValue(i.totalInvested)}
             Data da aplicação:  ${i.applicationDate}
 
             INFORMAÇÕES DO BANCO ATRELADO AO INVESTIMENTO
@@ -75,9 +73,20 @@ export class InvestmentsMenu {
         const interactWithUserObj = new InteractWithUser()
         interactWithUserObj.cleanTerminal()
 
-        if (answer === '1') {
-            this.handleWithCreateNewInvestment() 
+        switch(answer){
+            case '1': {
+                this.handleWithCreateNewInvestment() 
+                break
+            }
+            case '2': {
+                this.handleWithUpdateInvestment()
+                break
+            }
+            default: {
+                console.log('OPÇÃO INVÁLIDA')
+            }
         }
+        
     }
 
     private async displayInvestmentsOptions() {
@@ -86,7 +95,9 @@ export class InvestmentsMenu {
 
          Escolha a opção desejada:
 
-         1- Criar novo investmento: `
+         1- Criar novo investmento:
+         2- Atualizar Investimento:
+         `
 
         let answer = await interactWithUserObj.interactWithUser(message)
         this.handleWithInvestmentOptions(answer)
@@ -96,20 +107,6 @@ export class InvestmentsMenu {
         const displayTitle = new Display()
         const apiServiceObj = new ApiService()
         console.log(displayTitle.getCreateNewInvestment())
-
-
-        // ID: 1
-        // Tipo do investimento: Test Type
-        // Nome do investimento:   Test Name
-        // Total investido:  1000
-        // Data da aplicação:  Test data
-
-        // INFORMAÇÕES DO BANCO ATRELADO AO INVESTIMENTO
-
-        // ID do Banco ou corretora:  undefined
-        // Banco ou corretora:  Nubank
-        // Valor total de investimentos nesse banco:  1000
-
         const interactWithUserObj = new InteractWithUser()
         
         let message = "Digite o tipo do investimento (Renda fixa ou variável): "
@@ -124,7 +121,6 @@ export class InvestmentsMenu {
         const applicationDate =  await interactWithUserObj.interactWithUser(message)
         message = "Digite o ID do banco onde o investimento foi realizado: "
         const bankId = await interactWithUserObj.interactWithUser(message)
-
 
         const investment = new CreateNewInvestmentDTO(
             investmentType,
@@ -143,27 +139,92 @@ export class InvestmentsMenu {
 
     }
     
+
     private async handleWithUpdateInvestment() {
         const apiServiceObj = new ApiService()
         const interactWithUserObj = new InteractWithUser()
-        let message = `
+        const investmentId = await interactWithUserObj.interactWithUser(`
         Insira o ID do investimento que deseja alterar:
-        `
-        let newId : string = ""
-        let newInvestmentValue : number = 0
-
-        newId = await interactWithUserObj.interactWithUser(message);
+        `)
      
-        message = `
-            Insira o novo valor do investimento: 
-        `
+        const investmentType =  await interactWithUserObj.interactWithUser(`
+        Insira o tipo do investimento (Renda Fixa ou Variável)
+        `)
+
+        const investmentName =  await interactWithUserObj.interactWithUser(`
+        Insira o nome do investimento EX: FII, CDB
+        `)
+
+        const totalInvested =  await interactWithUserObj.interactWithUser(`
+        Insira o total investido. EX: 1.252,00: 
+        `)
 
 
-        newInvestmentValue = parseInt(await interactWithUserObj.interactWithUser(message))
+        const applicationDate =  await interactWithUserObj.interactWithUser(`
+        Insira a data em que fez essa aplicação: 
+        `)
+
+        const bankId =  await interactWithUserObj.interactWithUser(`
+        Insira o ID do banco onde o investimento está custodiado: 
+        `)
+
+        const investment = new UpdateInvestmentDTO(
+            parseInt(investmentId), 
+            investmentType,
+            investmentName,
+            totalInvested.replace(".", "").replace(",", ""),
+            applicationDate,
+            parseInt(bankId)
+        )
+        
+
+        // Mock
+        // const investment = new UpdateInvestmentDTO(
+        //     10,
+        //     "Renda Fixa",
+        //     "Tesouro Selic",
+        //     "1.242,00".replace(".", "").replace(",", ""),
+        //     'Data ainda não infaormada',
+        //     parseInt('1')
+        // )
+
+        const response = await apiServiceObj.updateInvestment(investment)
+        
+        //TODO: Fazer verificação de sucesso aqui e tratar erros
+         console.log(`
+
+                                                            INVESTIMENTO ATUALIZADO COM SUCESSO
+         
+         `)
+         console.log('#'.repeat(150))
+         console.log('#'.repeat(150))
+         console.log(`
+         
+         LISTA DE INVESTIMENTOS ATUALIZADA: 
+         
+         `)
+         
+
+
+
+         const apiResponse = await apiServiceObj.getData()
+         const investmentList =  await apiResponse.data.getInvestments.map( (i) => {
        
-        await apiServiceObj.updateInvestment(parseInt(newId), newInvestmentValue)
+            return new InvestmentDTO(
+                i.id,
+                i.type,
+                i.name,
+                i.totalInvested,
+                i.applicationDate,
+                i.bank
+            )
 
-
+       
+        })
+     
+        this.formatInvestmentListToDisplay(investmentList)
+         
+         
     }
 
 }

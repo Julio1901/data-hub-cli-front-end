@@ -2,6 +2,8 @@ import { Injectable } from "@nestjs/common";
 import axios from "axios";
 import { IResponseData } from "./response-data.interface";
 import { CreateNewInvestmentDTO } from "./create-new-investment.dto";
+import { UpdateInvestmentDTO } from "./update-investment.dto";
+import { IUpdateInvestmentData } from "src/interfaces/investments/IUpdateInvestmentData";
 
 
 
@@ -39,14 +41,29 @@ export class ApiService{
     }
 
 
-    async updateInvestment(investmentId: number, newValue: number) {
+    async updateInvestment(investment: UpdateInvestmentDTO): Promise<IUpdateInvestmentData> {
 
       const mutation = `
       mutation {
-        updateInvestment(data: {
-            id: ${investmentId},
-            newValue: ${newValue}
-          })
+        updateInvestment( data: {
+          id: ${investment.id},
+          type: "${investment.type}",
+          name: "${investment.name}",
+          totalInvested: ${investment.totalInvested},
+          applicationDate: "${investment.applicationDate}",
+          bankId: ${investment.bankId}
+        }){
+           id
+          type
+          name
+          totalInvested
+          applicationDate
+          bank{
+            id
+            name
+            savedMoney
+          }
+        }
       }
 
       `
@@ -55,6 +72,7 @@ export class ApiService{
         const response = await axios.post('http://localhost:3000/graphql', {query: mutation})
         return response.data
       }catch(error) {
+        console.log('Passou no erro')
         throw error
     }
 
@@ -72,7 +90,7 @@ export class ApiService{
       })
     }
   `
-
+  console.log(mutation)
   try{
     //TODO Tratar esse response e verificar se foi em sucedido
      const response = await axios.post('http://localhost:3000/graphql', {query: mutation})
